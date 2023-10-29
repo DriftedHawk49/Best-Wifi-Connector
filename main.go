@@ -1,29 +1,25 @@
 package main
 
 import (
+	clitools "Best-Wifi-Connector/cli-tools"
 	"Best-Wifi-Connector/globals"
 	"Best-Wifi-Connector/log"
-	"Best-Wifi-Connector/parser"
-	"Best-Wifi-Connector/utilities"
-	"fmt"
-	"os/exec"
 
-	"github.com/kr/pretty"
 	"go.uber.org/zap"
 )
 
 func main() {
 
-	logger := log.InitLogger("")
-	globals.Logger = logger
+	fl := clitools.FlagParser()
 
-	output, err := exec.Command("nmcli", "-t", "dev", "wifi", "list").Output()
+	logLevel := globals.LOGLEVEL_INFO
 
-	if err != nil {
-		logger.Error("error while getting wifi list", zap.String("err", err.Error()))
-		return
+	if fl.Debug {
+		logLevel = globals.LOGLEVEL_DEBUG
 	}
 
-	fmt.Println(pretty.Sprint(utilities.TrimEscapeCharacters(parser.NMCLIParser(output)[0][1])))
+	logger := log.InitLogger(logLevel)
+	logger.Debug("logger initiated successfully", zap.String("log level", logLevel))
+	globals.Logger = logger
 
 }
